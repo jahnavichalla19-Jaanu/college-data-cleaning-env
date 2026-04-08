@@ -1,0 +1,16 @@
+[project]
+name = "college-data-cleaning-env"
+version = "0.1.0"
+description = "AI environment for cleaning college data"
+authors = [{name = "Jahnavi"}]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "openai"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
