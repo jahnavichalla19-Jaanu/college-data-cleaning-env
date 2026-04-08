@@ -1,24 +1,22 @@
-from fastapi import FastAPI
-from env import CollegeDataEnv
-from models import Action
+[project]
+name = "college-data-cleaning-env"
+version = "0.1.0"
+description = "AI environment for cleaning college data"
+authors = [
+    { name = "Jahnavi" }
+]
 
-app = FastAPI()
-env = CollegeDataEnv()
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "openenv-core>=0.2.0"
+]
 
-@app.get("/")
-def home():
-    return {"message": "College Data Cleaning Environment Running 🚀"}
+[project.scripts]
+server = "server.app:app"
 
-@app.post("/reset")
-def reset():
-    return env.reset()
-
-@app.post("/step")
-def step(action: Action):
-    obs, reward, done, info = env.step(action)
-    return {
-        "data": obs.data,
-        "reward": reward,
-        "done": done,
-        "info": info
-    }
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
