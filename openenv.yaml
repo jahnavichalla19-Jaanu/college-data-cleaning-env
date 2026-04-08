@@ -1,0 +1,10 @@
+name: college-data-env
+description: College data cleaning environment
+version: 1.0
+
+entrypoint: env.py:CollegeDataEnv
+
+tasks:
+  - name: easy
+  - name: medium
+  - name: hard
