@@ -1,43 +1,51 @@
 import os
-from openai import OpenAI
 import requests
-
-BASE_URL = "http://127.0.0.1:8000"
+from openai import OpenAI
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN", "none")
+
+BASE_URL = "http://0.0.0.0:7860"
 
 client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
+print(f"[START] task=college-clean env=college-data-env model={MODEL_NAME}", flush=True)
+
+try:
+    res = requests.post(f"{BASE_URL}/reset", timeout=10)
+    res.raise_for_status()
+except Exception as e:
+    print(f"[END] success=false steps=0 score=0.00 rewards=", flush=True)
+    exit(1)
+
 actions = ["remove_duplicates", "fill_missing", "fix_format"]
-
-print(f"[START] task=college-clean env=college-env model={MODEL_NAME}")
-
-res = requests.post(f"{BASE_URL}/reset")
-data = res.json()
-
 total_rewards = []
-steps = 0
-done = False
+step_count = 0
+result = {}
 
-for i, act in enumerate(actions):
-    steps += 1
+for act in actions:
+    step_count += 1
+    try:
+        res = requests.post(f"{BASE_URL}/step", json={"action_type": act}, timeout=10)
+        res.raise_for_status()
+        result = res.json()
 
-    res = requests.post(f"{BASE_URL}/step", json={"action_type": act})
-    result = res.json()
+        reward = float(result.get("reward", 0))
+        done = result.get("done", False)
+        total_rewards.append(reward)
 
-    reward = float(result.get("reward", 0))
-    done = result.get("done", False)
+        print(f"[STEP] step={step_count} action={act} reward={reward:.2f} done={str(done).lower()} error=null", flush=True)
 
-    total_rewards.append(f"{reward:.2f}")
+        if done:
+            break
 
-    print(f"[STEP] step={steps} action={act} reward={reward:.2f} done={str(done).lower()} error=null")
+    except Exception as e:
+        total_rewards.append(0.0)
+        print(f"[STEP] step={step_count} action={act} reward=0.00 done=false error={str(e)}", flush=True)
 
-    if done:
-        break
-
-score = float(result.get("info", {}).get("score", 0))
+score = float(result.get("info", {}).get("score", 0)) if result else 0.0
 success = "true" if score > 0 else "false"
+reward_str = ",".join([f"{r:.2f}" for r in total_rewards])
 
-print(f"[END] success={success} steps={steps} score={score:.2f} rewards={','.join(total_rewards)}")
+print(f"[END] success={success} steps={step_count} score={score:.2f} rewards={reward_str}", flush=True)
