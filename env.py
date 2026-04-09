@@ -36,15 +36,22 @@ class CollegeDataEnv:
                 if d["marks"] is None:
                     d["marks"] = 0
                     reward += 0.3
-
         elif action.action_type == "fix_format":
             for d in self.data:
                 d["name"] = d["name"].capitalize()
             reward += 0.3
-
         if all(d["marks"] is not None for d in self.data):
             self.done = True
-
-        score = (easy(self.data) + medium(self.data) + hard(self.data)) / 3
-
-        return Observation(data=self.data, message="Step done"), reward, self.done, {"score": score}
+        score_easy = easy(self.data)
+        score_medium = medium(self.data)
+        score_hard = hard(self.data)
+        return Observation(
+            data=self.data,
+            message="Step done"
+        ), reward, self.done, {
+            "tasks": {
+                "easy": score_easy,
+                "medium": score_medium,
+                "hard": score_hard
+            }
+        }
