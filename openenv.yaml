@@ -7,26 +7,31 @@ entrypoint: server:app
 tasks:
   - name: easy
     description: Remove duplicate student records based on ID
-    grader: tasks:easy
-    reward_threshold: 1.0
+    grader: easy
+    max_steps: 10
+    reward_threshold: 0.5
 
   - name: medium
     description: Fill missing marks in student records
-    grader: tasks:medium
-    reward_threshold: 1.0
+    grader: medium
+    max_steps: 10
+    reward_threshold: 0.5
 
   - name: hard
     description: Fix inconsistent name formatting in student records
-    grader: tasks:hard
-    reward_threshold: 1.0
+    grader: hard
+    max_steps: 10
+    reward_threshold: 0.5
 
 actions:
-  - remove_duplicates
-  - fill_missing
-  - fix_format
+  - name: remove_duplicates
+  - name: fill_missing
+  - name: fix_format
 
 observation_space:
   type: object
   description: Current dataset with student records
 
-reward_range: [0.0, 1.0]
+reward_range:
+  - 0.0
+  - 1.0
