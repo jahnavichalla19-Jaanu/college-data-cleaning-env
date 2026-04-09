@@ -1,18 +1,20 @@
 def easy(data):
-    """Grader: score 1.0 if no duplicate IDs exist"""
-    if not data:
-        return 0.0
+    # basic: duplicates removed
     ids = [d["id"] for d in data]
-    return 1.0 if len(ids) == len(set(ids)) else 0.0
+    return 1.0 if len(ids) == len(set(ids)) else 0.5
+
 
 def medium(data):
-    """Grader: score 1.0 if no missing marks exist"""
-    if not data:
-        return 0.0
-    return 1.0 if all(d["marks"] is not None for d in data) else 0.0
+    # missing marks filled
+    if all(d["marks"] is not None for d in data):
+        return 1.0
+    return 0.5
+
 
 def hard(data):
-    """Grader: score 1.0 if all names are properly capitalized"""
-    if not data:
-        return 0.0
-    return 1.0 if all(d["name"] == d["name"].capitalize() for d in data) else 0.0
+    # full clean: format + marks
+    correct = all(
+        d["marks"] is not None and d["name"][0].isupper()
+        for d in data
+    )
+    return 1.0 if correct else 0.5
