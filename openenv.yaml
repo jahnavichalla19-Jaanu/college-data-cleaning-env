@@ -1,37 +1,26 @@
 name: college-data-cleaning-env
 description: AI environment for cleaning college student data
 version: "1.0"
+tags:
+  - openenv
 
 entrypoint: server:app
 
 tasks:
   - name: easy
     description: Remove duplicate student records based on ID
-    grader: easy
-    max_steps: 10
-    reward_threshold: 0.5
-
   - name: medium
     description: Fill missing marks in student records
-    grader: medium
-    max_steps: 10
-    reward_threshold: 0.5
-
   - name: hard
     description: Fix inconsistent name formatting in student records
-    grader: hard
-    max_steps: 10
-    reward_threshold: 0.5
 
 actions:
-  - name: remove_duplicates
-  - name: fill_missing
-  - name: fix_format
+  - remove_duplicates
+  - fill_missing
+  - fix_format
 
 observation_space:
   type: object
   description: Current dataset with student records
 
-reward_range:
-  - 0.0
-  - 1.0
+reward_range: [0.0, 1.0]

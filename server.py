@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from env import CollegeDataEnv
 from models import Action
+from tasks import easy, medium, hard
 
 app = FastAPI()
 env = CollegeDataEnv()
@@ -9,27 +10,28 @@ env = CollegeDataEnv()
 def home():
     return {"message": "College Data Cleaning Environment Running 🚀"}
 
+@app.get("/state")
+def state():
+    return {
+        "data": env.data,
+        "done": env.done
+    }
+
 @app.get("/tasks")
 def get_tasks():
     return {
         "tasks": [
             {
                 "name": "easy",
-                "description": "Remove duplicate student records based on ID",
-                "grader": "easy",
-                "reward_threshold": 0.5
+                "description": "Remove duplicate student records based on ID"
             },
             {
                 "name": "medium",
-                "description": "Fill missing marks in student records",
-                "grader": "medium",
-                "reward_threshold": 0.5
+                "description": "Fill missing marks in student records"
             },
             {
                 "name": "hard",
-                "description": "Fix inconsistent name formatting in student records",
-                "grader": "hard",
-                "reward_threshold": 0.5
+                "description": "Fix inconsistent name formatting in student records"
             }
         ]
     }
@@ -47,4 +49,19 @@ def step(action: Action):
         "reward": reward,
         "done": done,
         "info": info
+    }
+
+@app.post("/grade/{task_name}")
+def grade(task_name: str):
+    graders = {
+        "easy": easy,
+        "medium": medium,
+        "hard": hard
+    }
+    if task_name not in graders:
+        return {"error": "task not found", "score": 0.0}
+    score = graders[task_name](env.data)
+    return {
+        "task": task_name,
+        "score": round(score, 2)
     }
