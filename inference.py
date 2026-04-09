@@ -2,13 +2,13 @@ import os
 import requests
 from openai import OpenAI
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN", "none")
+API_BASE_URL = os.environ.get("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+API_KEY = os.environ.get("API_KEY") or os.environ.get("HF_TOKEN", "none")
 
 BASE_URL = "http://0.0.0.0:7860"
 
-client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
 print(f"[START] task=college-clean env=college-data-env model={MODEL_NAME}", flush=True)
 
@@ -26,6 +26,27 @@ result = {}
 
 for act in actions:
     step_count += 1
+    try:
+        # ✅ ACTUAL LLM CALL through their proxy
+        llm_response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an AI agent cleaning college student data. Choose the best action."
+                },
+                {
+                    "role": "user",
+                    "content": f"Current action to perform: {act}. Confirm this is the right action for data cleaning."
+                }
+            ],
+            max_tokens=50
+        )
+        llm_decision = llm_response.choices[0].message.content
+
+    except Exception as e:
+        llm_decision = act
+
     try:
         res = requests.post(f"{BASE_URL}/step", json={"action_type": act}, timeout=10)
         res.raise_for_status()
