@@ -27,7 +27,6 @@ result = {}
 for act in actions:
     step_count += 1
     try:
-        # ✅ ACTUAL LLM CALL through their proxy
         llm_response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
