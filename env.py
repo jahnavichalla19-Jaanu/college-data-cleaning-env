@@ -8,7 +8,7 @@ class CollegeDataEnv:
         self.original_data = [
             {"id": "101", "name": "jahnavi", "marks": None},
             {"id": "101", "name": "JAHNAVI", "marks": 90},
-            {"id": "102", "name": "Ravi", "marks": None}
+            {"id": "102", "name": "Nani", "marks": None}
         ]
         self.data = []
         self.done = False
@@ -16,7 +16,7 @@ class CollegeDataEnv:
     def reset(self):
         self.data = copy.deepcopy(self.original_data)
         self.done = False
-        return Observation(data=self.data, message="Clean college data")
+        return Observation(data=self.data, message="Reset done. Clean the data.")
 
     def step(self, action: Action):
         reward = 0.0
@@ -35,20 +35,22 @@ class CollegeDataEnv:
             for d in self.data:
                 if d["marks"] is None:
                     d["marks"] = 0
-                    reward += 0.3
+                    reward += 0.15
+
         elif action.action_type == "fix_format":
             for d in self.data:
                 d["name"] = d["name"].capitalize()
             reward += 0.3
+
         if all(d["marks"] is not None for d in self.data):
             self.done = True
+
         score_easy = easy(self.data)
         score_medium = medium(self.data)
         score_hard = hard(self.data)
-        return Observation(
-            data=self.data,
-            message="Step done"
-        ), reward, self.done, {
+
+        return Observation(data=self.data, message="Step done"), reward, self.done, {
+            "score": round((score_easy + score_medium + score_hard) / 3, 2),
             "tasks": {
                 "easy": score_easy,
                 "medium": score_medium,

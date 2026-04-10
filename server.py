@@ -21,18 +21,9 @@ def state():
 def get_tasks():
     return {
         "tasks": [
-            {
-                "name": "easy",
-                "description": "Remove duplicate student records based on ID"
-            },
-            {
-                "name": "medium",
-                "description": "Fill missing marks in student records"
-            },
-            {
-                "name": "hard",
-                "description": "Fix inconsistent name formatting in student records"
-            }
+            {"name": "easy", "description": "Remove duplicate student records"},
+            {"name": "medium", "description": "Fill missing marks in student records"},
+            {"name": "hard", "description": "Fix inconsistent name formatting"}
         ]
     }
 
@@ -59,7 +50,7 @@ def grade(task_name: str):
         "hard": hard
     }
     if task_name not in graders:
-        return {"error": "task not found", "score": 0.0}
+        return {"error": "task not found", "score": 0.2}
     score = graders[task_name](env.data)
     return {
         "task": task_name,
