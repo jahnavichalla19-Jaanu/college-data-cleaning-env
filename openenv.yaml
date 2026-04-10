@@ -1,46 +1,56 @@
+spec_version: 1
 name: college-data-cleaning-env
-description: AI environment for cleaning college student data using OpenEnv
-version: "1.0"
+version: "1.0.0"
+type: http
+description: >
+  Real-world college student data cleaning environment for AI agent training.
+  An agent receives messy student records and must clean them by removing
+  duplicates, filling missing values, and fixing name formatting.
+
+author: "Jahnavi"
+
 tags:
   - openenv
   - data-cleaning
   - real-world
 
-entrypoint: server:app
-
-health_endpoint: /health
-tasks_endpoint: /tasks
-reset_endpoint: /reset
-step_endpoint: /step
-state_endpoint: /state
-grade_endpoint: /grade/{task_name}
-
 tasks:
-  - name: easy
-    description: Remove duplicate student records based on ID
+  - id: easy
+    description: "Remove duplicate student records based on ID"
     difficulty: easy
-    grader_endpoint: /grade/easy
+    max_attempts: 5
+    scoring: "0.001-0.999 partial credit"
 
-  - name: medium
-    description: Fill missing marks in student records
+  - id: medium
+    description: "Fill missing marks in student records"
     difficulty: medium
-    grader_endpoint: /grade/medium
+    max_attempts: 5
+    scoring: "0.001-0.999 partial credit"
 
-  - name: hard
-    description: Fix inconsistent name formatting in student records
+  - id: hard
+    description: "Fix inconsistent name formatting in student records"
     difficulty: hard
-    grader_endpoint: /grade/hard
-
-actions:
-  - name: remove_duplicates
-    description: Remove duplicate records
-  - name: fill_missing
-    description: Fill missing marks with 0
-  - name: fix_format
-    description: Capitalize all student names
+    max_attempts: 5
+    scoring: "0.001-0.999 partial credit"
 
 observation_space:
-  type: object
-  description: Current dataset with student records
+  data: "list — current student records"
+  message: "string — current environment message"
 
-reward_range: [0.0, 1.0]
+action_space:
+  action_type: "string — remove_duplicates | fill_missing | fix_format"
+
+reward:
+  type: continuous
+  range: [0.001, 0.999]
+  shaping:
+    - "+0.40 for remove_duplicates"
+    - "+0.15 per missing mark filled"
+    - "+0.30 for fix_format"
+
+runtime:
+  framework: FastAPI
+  python: "3.11"
+  docker: true
+  hf_spaces: true
+  port: 7860

@@ -8,18 +8,21 @@ class CollegeDataEnv:
         self.original_data = [
             {"id": "101", "name": "jahnavi", "marks": None},
             {"id": "101", "name": "JAHNAVI", "marks": 90},
-            {"id": "102", "name": "Nani", "marks": None}
+            {"id": "102", "name": "Ravi", "marks": None}
         ]
         self.data = []
         self.done = False
+        self.step_count = 0
 
     def reset(self):
         self.data = copy.deepcopy(self.original_data)
         self.done = False
+        self.step_count = 0
         return Observation(data=self.data, message="Reset done. Clean the data.")
 
     def step(self, action: Action):
         reward = 0.0
+        self.step_count += 1
 
         if action.action_type == "remove_duplicates":
             seen = set()
@@ -48,9 +51,10 @@ class CollegeDataEnv:
         score_easy = easy(self.data)
         score_medium = medium(self.data)
         score_hard = hard(self.data)
+        final_score = round((score_easy + score_medium + score_hard) / 3, 3)
 
         return Observation(data=self.data, message="Step done"), reward, self.done, {
-            "score": round((score_easy + score_medium + score_hard) / 3, 2),
+            "score": final_score,
             "tasks": {
                 "easy": score_easy,
                 "medium": score_medium,

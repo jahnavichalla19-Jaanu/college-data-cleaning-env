@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class Observation(BaseModel):
     data: List[dict]
@@ -7,3 +7,5 @@ class Observation(BaseModel):
 
 class Action(BaseModel):
     action_type: str
+class GraderRequest(BaseModel):
+    task_id: str

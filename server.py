@@ -8,7 +8,7 @@ env = CollegeDataEnv()
 
 @app.get("/")
 def home():
-    return {"message": "College Data Cleaning Environment Running....."}
+    return {"message": "College Data Cleaning Environment Running 🚀"}
 
 @app.get("/health")
 def health():
@@ -26,19 +26,22 @@ def get_tasks():
     return {
         "tasks": [
             {
-                "name": "easy",
+                "id": "easy",
                 "description": "Remove duplicate student records based on ID",
-                "difficulty": "easy"
+                "difficulty": "easy",
+                "max_attempts": 5
             },
             {
-                "name": "medium",
+                "id": "medium",
                 "description": "Fill missing marks in student records",
-                "difficulty": "medium"
+                "difficulty": "medium",
+                "max_attempts": 5
             },
             {
-                "name": "hard",
+                "id": "hard",
                 "description": "Fix inconsistent name formatting in student records",
-                "difficulty": "hard"
+                "difficulty": "hard",
+                "max_attempts": 5
             }
         ]
     }
@@ -58,6 +61,22 @@ def step(action: Action):
         "info": info
     }
 
+@app.post("/grader")
+def grader(body: dict):
+    task_name = body.get("task_id", "")
+    graders = {
+        "easy": easy,
+        "medium": medium,
+        "hard": hard
+    }
+    if task_name not in graders:
+        return {"error": "task not found", "score": 0.2}
+    score = graders[task_name](env.data)
+    return {
+        "task_id": task_name,
+        "score": round(score, 3)
+    }
+
 @app.post("/grade/{task_name}")
 def grade(task_name: str):
     graders = {
@@ -69,6 +88,6 @@ def grade(task_name: str):
         return {"error": "task not found", "score": 0.2}
     score = graders[task_name](env.data)
     return {
-        "task": task_name,
-        "score": round(score, 2)
+        "task_id": task_name,
+        "score": round(score, 3)
     }

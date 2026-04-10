@@ -1,16 +1,18 @@
 def easy(data):
-    """Grader: Remove duplicates — no duplicate IDs"""
+    """Grader: Remove duplicates — scores between 0.001 and 0.999"""
     if not data:
         return 0.2
     ids = [d["id"] for d in data]
-    if len(ids) == len(set(ids)):
+    unique = len(set(ids))
+    total = len(ids)
+    if unique == total:
         return 0.999
-    duplicates = len(ids) - len(set(ids))
-    return round(max(0.001, 0.8 - (duplicates * 0.2)), 3)
+    score = unique / total
+    return round(max(0.001, min(0.999, score)), 3)
 
 
 def medium(data):
-    """Grader: Fill missing marks — no None values"""
+    """Grader: Fill missing marks — scores between 0.001 and 0.999"""
     if not data:
         return 0.2
     filled = sum(1 for d in data if d["marks"] is not None)
@@ -18,13 +20,11 @@ def medium(data):
     score = filled / total
     if score >= 1.0:
         return 0.999
-    if score <= 0:
-        return 0.001
-    return round(score, 3)
+    return round(max(0.001, min(0.998, score)), 3)
 
 
 def hard(data):
-    """Grader: Fix name format — all names capitalized"""
+    """Grader: Fix name formatting — scores between 0.001 and 0.999"""
     if not data:
         return 0.2
     correct = sum(1 for d in data if d["name"] == d["name"].capitalize())
@@ -32,6 +32,4 @@ def hard(data):
     score = correct / total
     if score >= 1.0:
         return 0.999
-    if score <= 0:
-        return 0.001
-    return round(score, 3)
+    return round(max(0.001, min(0.998, score)), 3)
