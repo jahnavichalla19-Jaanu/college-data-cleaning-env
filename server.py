@@ -8,7 +8,11 @@ env = CollegeDataEnv()
 
 @app.get("/")
 def home():
-    return {"message": "College Data Cleaning Environment Running 🚀"}
+    return {"message": "College Data Cleaning Environment Running....."}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy", "service": "college-data-cleaning-env"}
 
 @app.get("/state")
 def state():
@@ -21,9 +25,21 @@ def state():
 def get_tasks():
     return {
         "tasks": [
-            {"name": "easy", "description": "Remove duplicate student records"},
-            {"name": "medium", "description": "Fill missing marks in student records"},
-            {"name": "hard", "description": "Fix inconsistent name formatting"}
+            {
+                "name": "easy",
+                "description": "Remove duplicate student records based on ID",
+                "difficulty": "easy"
+            },
+            {
+                "name": "medium",
+                "description": "Fill missing marks in student records",
+                "difficulty": "medium"
+            },
+            {
+                "name": "hard",
+                "description": "Fix inconsistent name formatting in student records",
+                "difficulty": "hard"
+            }
         ]
     }
 

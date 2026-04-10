@@ -1,9 +1,46 @@
 name: college-data-cleaning-env
-description: Data cleaning environment
+description: AI environment for cleaning college student data using OpenEnv
+version: "1.0"
+tags:
+  - openenv
+  - data-cleaning
+  - real-world
 
-entrypoint: server.app:main
+entrypoint: server:app
+
+health_endpoint: /health
+tasks_endpoint: /tasks
+reset_endpoint: /reset
+step_endpoint: /step
+state_endpoint: /state
+grade_endpoint: /grade/{task_name}
 
 tasks:
   - name: easy
+    description: Remove duplicate student records based on ID
+    difficulty: easy
+    grader_endpoint: /grade/easy
+
   - name: medium
+    description: Fill missing marks in student records
+    difficulty: medium
+    grader_endpoint: /grade/medium
+
   - name: hard
+    description: Fix inconsistent name formatting in student records
+    difficulty: hard
+    grader_endpoint: /grade/hard
+
+actions:
+  - name: remove_duplicates
+    description: Remove duplicate records
+  - name: fill_missing
+    description: Fill missing marks with 0
+  - name: fix_format
+    description: Capitalize all student names
+
+observation_space:
+  type: object
+  description: Current dataset with student records
+
+reward_range: [0.0, 1.0]
