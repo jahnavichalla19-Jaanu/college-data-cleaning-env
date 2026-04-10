@@ -20,44 +20,47 @@ class CollegeDataEnv:
         self.step_count = 0
         return Observation(data=self.data, message="Reset done. Clean the data.")
 
-    def step(self, action: Action):
-        reward = 0.0
-        self.step_count += 1
+   def step(self, action: Action):
+    reward = 0.0
 
-        if action.action_type == "remove_duplicates":
-            seen = set()
-            new_data = []
-            for d in self.data:
-                if d["id"] not in seen:
-                    seen.add(d["id"])
-                    new_data.append(d)
-            self.data = new_data
-            reward += 0.4
+    if action.action_type == "remove_duplicates":
+        seen = set()
+        new_data = []
+        for d in self.data:
+            if d["id"] not in seen:
+                seen.add(d["id"])
+                new_data.append(d)
+        self.data = new_data
+        reward += 0.4
 
-        elif action.action_type == "fill_missing":
-            for d in self.data:
-                if d["marks"] is None:
-                    d["marks"] = 0
-                    reward += 0.15
+    elif action.action_type == "fill_missing":
+        for d in self.data:
+            if d["marks"] is None:
+                d["marks"] = 0
+                reward += 0.3
 
-        elif action.action_type == "fix_format":
-            for d in self.data:
-                d["name"] = d["name"].capitalize()
-            reward += 0.3
+    elif action.action_type == "fix_format":
+        for d in self.data:
+            d["name"] = d["name"].capitalize()
+        reward += 0.3
 
-        if all(d["marks"] is not None for d in self.data):
-            self.done = True
+    if all(d["marks"] is not None for d in self.data):
+        self.done = True
 
-        score_easy = easy(self.data)
-        score_medium = medium(self.data)
-        score_hard = hard(self.data)
-        final_score = round((score_easy + score_medium + score_hard) / 3, 3)
+    score_easy = easy(self.data)
+    score_medium = medium(self.data)
+    score_hard = hard(self.data)
 
-        return Observation(data=self.data, message="Step done"), reward, self.done, {
-            "score": final_score,
-            "tasks": {
-                "easy": score_easy,
-                "medium": score_medium,
-                "hard": score_hard
-            }
+    final_score = (score_easy + score_medium + score_hard) / 3
+
+    return Observation(
+        data=self.data,
+        message="Step done"
+    ), reward, self.done, {
+        "score": final_score,
+        "tasks": {
+            "easy": score_easy,
+            "medium": score_medium,
+            "hard": score_hard
         }
+    }
