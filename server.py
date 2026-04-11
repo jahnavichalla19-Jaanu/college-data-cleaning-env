@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from env import CollegeDataEnv
-from models import Action
+from models import Action, GraderRequest
 from tasks import easy, medium, hard
 
 app = FastAPI()
@@ -27,21 +27,33 @@ def get_tasks():
         "tasks": [
             {
                 "id": "easy",
+                "name": "easy",
                 "description": "Remove duplicate student records based on ID",
                 "difficulty": "easy",
-                "max_attempts": 5
+                "max_attempts": 5,
+                "grader": "/grader",
+                "grader_endpoint": "/grader",
+                "score": easy(env.data)
             },
             {
                 "id": "medium",
+                "name": "medium",
                 "description": "Fill missing marks in student records",
                 "difficulty": "medium",
-                "max_attempts": 5
+                "max_attempts": 5,
+                "grader": "/grader",
+                "grader_endpoint": "/grader",
+                "score": medium(env.data)
             },
             {
                 "id": "hard",
+                "name": "hard",
                 "description": "Fix inconsistent name formatting in student records",
                 "difficulty": "hard",
-                "max_attempts": 5
+                "max_attempts": 5,
+                "grader": "/grader",
+                "grader_endpoint": "/grader",
+                "score": hard(env.data)
             }
         ]
     }
@@ -63,17 +75,17 @@ def step(action: Action):
 
 @app.post("/grader")
 def grader(body: dict):
-    task_name = body.get("task_id", "")
+    task_id = body.get("task_id", "")
     graders = {
         "easy": easy,
         "medium": medium,
         "hard": hard
     }
-    if task_name not in graders:
+    if task_id not in graders:
         return {"error": "task not found", "score": 0.2}
-    score = graders[task_name](env.data)
+    score = graders[task_id](env.data)
     return {
-        "task_id": task_name,
+        "task_id": task_id,
         "score": round(score, 3)
     }
 
