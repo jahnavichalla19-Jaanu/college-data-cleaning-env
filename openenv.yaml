@@ -1,2 +1,24 @@
 name: college-data-cleaning-env
-entrypoint: server.app:main
+description: AI environment for cleaning college student data
+version: 1.0
+
+entrypoint: server:app
+
+tasks:
+  - name: easy
+    description: Remove duplicate records
+  - name: medium
+    description: Fill missing values
+  - name: hard
+    description: Fix formatting issues
+
+actions:
+  - remove_duplicates
+  - fill_missing
+  - fix_format
+
+observation_space:
+  type: object
+  description: Current dataset
+
+reward_range: [0.0, 1.0]
