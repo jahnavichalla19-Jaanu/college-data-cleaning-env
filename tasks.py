@@ -1,20 +1,20 @@
 def easy(data):
-
+    if not data:
+        return 0.1
     ids = [d["id"] for d in data]
-    if len(ids) == len(set(ids)):
-        return 1.0
-    return 0.0
-
+    score = len(set(ids)) / len(ids)
+    return round(min(0.9, max(0.1, score)), 2)
 
 def medium(data):
-    
-    total = len(data)
+    if not data:
+        return 0.1
     filled = sum(1 for d in data if d["marks"] is not None)
-    return filled / total
-
+    score = filled / len(data)
+    return round(min(0.9, max(0.1, score)), 2)
 
 def hard(data):
-
-    total = len(data)
-    correct = sum(1 for d in data if d["name"][0].isupper())
-    return correct / total
+    if not data:
+        return 0.1
+    correct = sum(1 for d in data if d["name"] == d["name"].capitalize())
+    score = correct / len(data)
+    return round(min(0.9, max(0.1, score)), 2)

@@ -2,7 +2,6 @@ from models import Observation, Action
 from tasks import easy, medium, hard
 import copy
 
-
 class CollegeDataEnv:
 
     def __init__(self):
@@ -13,14 +12,17 @@ class CollegeDataEnv:
         ]
         self.data = []
         self.done = False
+        self.step_count = 0
 
     def reset(self):
         self.data = copy.deepcopy(self.original_data)
         self.done = False
-        return Observation(data=self.data, message="Clean college data")
+        self.step_count = 0
+        return Observation(data=self.data, message="Reset done. Clean the data.")
 
     def step(self, action: Action):
         reward = 0.0
+        self.step_count += 1
 
         if action.action_type == "remove_duplicates":
             seen = set()
@@ -36,28 +38,22 @@ class CollegeDataEnv:
             for d in self.data:
                 if d["marks"] is None:
                     d["marks"] = 0
-                    reward += 0.3
+                    reward += 0.15
 
         elif action.action_type == "fix_format":
             for d in self.data:
                 d["name"] = d["name"].capitalize()
             reward += 0.3
 
-        
         if all(d["marks"] is not None for d in self.data):
             self.done = True
 
-        
         score_easy = easy(self.data)
         score_medium = medium(self.data)
         score_hard = hard(self.data)
+        final_score = round((score_easy + score_medium + score_hard) / 3, 2)
 
-        final_score = (score_easy + score_medium + score_hard) / 3
-
-        return Observation(
-            data=self.data,
-            message="Step done"
-        ), reward, self.done, {
+        return Observation(data=self.data, message="Step done"), reward, self.done, {
             "score": final_score,
             "tasks": {
                 "easy": score_easy,
@@ -65,6 +61,3 @@ class CollegeDataEnv:
                 "hard": score_hard
             }
         }
-
-    def get_tasks(self):
-        return ["easy", "medium", "hard"]

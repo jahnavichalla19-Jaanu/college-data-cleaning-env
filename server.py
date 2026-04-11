@@ -1,6 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from env import CollegeDataEnv
-from models import Action, GraderRequest
+from models import Action
 from tasks import easy, medium, hard
 
 app = FastAPI()
@@ -17,6 +17,8 @@ def health():
 @app.get("/state")
 def state():
     return {
+        "episode_id": "episode-001",
+        "step_count": env.step_count,
         "data": env.data,
         "done": env.done
     }
@@ -30,9 +32,8 @@ def get_tasks():
                 "name": "easy",
                 "description": "Remove duplicate student records based on ID",
                 "difficulty": "easy",
-                "max_attempts": 5,
-                "grader": "/grader",
-                "grader_endpoint": "/grader",
+                "grader": "easy",
+                "grader_endpoint": "/grade/easy",
                 "score": easy(env.data)
             },
             {
@@ -40,66 +41,103 @@ def get_tasks():
                 "name": "medium",
                 "description": "Fill missing marks in student records",
                 "difficulty": "medium",
-                "max_attempts": 5,
-                "grader": "/grader",
-                "grader_endpoint": "/grader",
+                "grader": "medium",
+                "grader_endpoint": "/grade/medium",
                 "score": medium(env.data)
             },
             {
                 "id": "hard",
                 "name": "hard",
-                "description": "Fix inconsistent name formatting in student records",
+                "description": "Fix inconsistent name formatting",
                 "difficulty": "hard",
-                "max_attempts": 5,
-                "grader": "/grader",
-                "grader_endpoint": "/grader",
+                "grader": "hard",
+                "grader_endpoint": "/grade/hard",
                 "score": hard(env.data)
             }
         ]
     }
 
 @app.post("/reset")
-def reset():
+async def reset(request: Request):
+    try:
+        body = await request.json()
+        task_id = body.get("task_id", "easy")
+        episode_id = body.get("episode_id", "episode-001")
+    except Exception:
+        task_id = "easy"
+        episode_id = "episode-001"
+    
     obs = env.reset()
-    return obs
+    return {
+        "observation": {
+            "data": obs.data,
+            "message": obs.message,
+            "task_id": task_id
+        },
+        "reward": None,
+        "done": False,
+        "episode_id": episode_id
+    }
 
 @app.post("/step")
-def step(action: Action):
+async def step(request: Request):
+    try:
+        body = await request.json()
+        action_type = body.get("action_type", body.get("action", {}).get("action_type", ""))
+    except Exception:
+        action_type = ""
+
+    action = Action(action_type=action_type)
     obs, reward, done, info = env.step(action)
     return {
-        "data": obs.data,
+        "observation": {
+            "data": obs.data,
+            "message": obs.message
+        },
         "reward": reward,
         "done": done,
         "info": info
     }
 
-@app.post("/grader")
-def grader(body: dict):
-    task_id = body.get("task_id", "")
-    graders = {
-        "easy": easy,
-        "medium": medium,
-        "hard": hard
-    }
-    if task_id not in graders:
-        return {"error": "task not found", "score": 0.2}
-    score = graders[task_id](env.data)
-    return {
-        "task_id": task_id,
-        "score": round(score, 3)
-    }
+@app.get("/grade/easy")
+def grade_easy():
+    return {"task_id": "easy", "score": easy(env.data)}
 
-@app.post("/grade/{task_name}")
+@app.get("/grade/medium")
+def grade_medium():
+    return {"task_id": "medium", "score": medium(env.data)}
+
+@app.get("/grade/hard")
+def grade_hard():
+    return {"task_id": "hard", "score": hard(env.data)}
+
+@app.post("/grade/easy")
+def grade_easy_post():
+    return {"task_id": "easy", "score": easy(env.data)}
+
+@app.post("/grade/medium")
+def grade_medium_post():
+    return {"task_id": "medium", "score": medium(env.data)}
+
+@app.post("/grade/hard")
+def grade_hard_post():
+    return {"task_id": "hard", "score": hard(env.data)}
+
+@app.api_route("/grade/{task_name}", methods=["GET", "POST"])
 def grade(task_name: str):
-    graders = {
-        "easy": easy,
-        "medium": medium,
-        "hard": hard
-    }
+    graders = {"easy": easy, "medium": medium, "hard": hard}
     if task_name not in graders:
-        return {"error": "task not found", "score": 0.2}
-    score = graders[task_name](env.data)
-    return {
-        "task_id": task_name,
-        "score": round(score, 3)
-    }
+        return {"error": "task not found", "score": 0.1}
+    return {"task_id": task_name, "score": graders[task_name](env.data)}
+
+@app.post("/grader")
+async def grader(request: Request):
+    try:
+        body = await request.json()
+        task_id = body.get("task_id", "")
+    except Exception:
+        task_id = ""
+    graders = {"easy": easy, "medium": medium, "hard": hard}
+    if task_id not in graders:
+        return {"error": "task not found", "score": 0.1}
+    return {"task_id": task_id, "score": graders[task_id](env.data)}
