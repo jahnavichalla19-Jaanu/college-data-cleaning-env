@@ -7,9 +7,6 @@ def easy(data):
 
     if score == 1.0:
         return 0.3
-    elif score == 0.0:
-        return 0.0
-    return score
 
 
 def medium(data):
@@ -20,9 +17,6 @@ def medium(data):
 
     if score == 1.0:
         return 0.5
-    elif score == 0.0:
-        return 0.0
-    return score
 
 
 def hard(data):
@@ -33,6 +27,3 @@ def hard(data):
 
     if score == 1.0:
         return 0.8
-    elif score == 0.0:
-        return 0.0
-    return score
