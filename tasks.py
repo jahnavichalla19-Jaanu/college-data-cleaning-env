@@ -6,9 +6,9 @@ def easy(data):
     score = unique / total   # gradual score
 
     if score == 1.0:
-        return 0.99
+        return 0.3
     elif score == 0.0:
-        return 0.01
+        return 0.0
     return score
 
 
@@ -19,9 +19,9 @@ def medium(data):
     score = filled / total
 
     if score == 1.0:
-        return 0.99
+        return 0.5
     elif score == 0.0:
-        return 0.01
+        return 0.0
     return score
 
 
@@ -32,7 +32,7 @@ def hard(data):
     score = correct / total
 
     if score == 1.0:
-        return 0.99
+        return 0.8
     elif score == 0.0:
-        return 0.01
+        return 0.0
     return score
