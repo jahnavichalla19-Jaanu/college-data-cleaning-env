@@ -1,8 +1,20 @@
 def easy(data):
-    return 1.0
+
+    ids = [d["id"] for d in data]
+    if len(ids) == len(set(ids)):
+        return 1.0
+    return 0.0
+
 
 def medium(data):
-    return 0.8
+    
+    total = len(data)
+    filled = sum(1 for d in data if d["marks"] is not None)
+    return filled / total
+
 
 def hard(data):
-    return 0.6
+
+    total = len(data)
+    correct = sum(1 for d in data if d["name"][0].isupper())
+    return correct / total
